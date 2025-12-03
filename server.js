@@ -92,12 +92,24 @@ app.post("/api/registrar", async (req, res) => {
 });
 
 // Login
+
+
+// Validador de senha forte usado pelo endpoint de registro (se necessário em outro lugar)
+function senhaForte(senha) {
+  // mínimo 8 caracteres, pelo menos uma letra maiúscula, uma minúscula, um número e um símbolo
+  return /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*\W).{8,}$/.test(senha);
+}
+
+// Login
 app.post("/api/login", async (req, res) => {
   try {
     const { email, senha } = req.body;
     if (!email || !senha) return res.status(400).json({ success: false, error: "Faltando campos" });
 
-    const [rows] = await pool.query("SELECT id, nome, email, senha, foto, pontos FROM usuarios WHERE email = ?", [email]);
+    const [rows] = await pool.query(
+      "SELECT id, nome, email, senha, foto, pontos FROM usuarios WHERE email = ?",
+      [email]
+    );
     if (rows.length === 0) return res.status(400).json({ success: false, error: "Usuário não encontrado" });
 
     const user = rows[0];
